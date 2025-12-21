@@ -1,13 +1,12 @@
 
-
 services:
 
   backend:
-    image: mcr.microsoft.com/dotnet/sdk:8.0
+    image: mcr.microsoft.com/dotnet/sdk:10.0-preview
     container_name: dotnet_api
     working_dir: /app
     volumes:
-      - ./backend:/app
+      - ./Backend/project_tasks:/app
     command: >
       sh -c "dotnet restore &&
              dotnet run --urls http://0.0.0.0:8080"
@@ -24,7 +23,7 @@ services:
     container_name: react_app
     working_dir: /app
     volumes:
-      - ./frontend:/app
+      - ./Frontend:/app
     command: >
       sh -c "npm install &&
              npm run dev -- --host"
@@ -48,6 +47,17 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 300M
+    depends_on:
+      - db
 volumes:
   mysql_data:
