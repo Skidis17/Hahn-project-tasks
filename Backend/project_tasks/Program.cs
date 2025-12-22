@@ -81,10 +81,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
 Console.WriteLine("🚀 Server starting on http://localhost:5000");
+app.Urls.Add("http://localhost:5000");
 app.Run();

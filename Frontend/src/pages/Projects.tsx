@@ -2,18 +2,19 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { authAPI, projectsAPI } from '@/services/api'
 import type { Project } from '@/types'
-import { Plus, LogOut, FolderKanban } from 'lucide-react'
+import { Plus, LogOut, FolderKanban, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [newProjectName, setNewProjectName] = useState('')
+  const [newProjectTitle, setNewProjectTitle] = useState('')
   const [newProjectDescription, setNewProjectDescription] = useState('')
   const navigate = useNavigate()
 
@@ -28,6 +29,7 @@ export default function Projects() {
       setProjects(data)
     } catch (error) {
       console.error('Failed to load projects:', error)
+      toast.error('Failed to load projects')
     } finally {
       setLoading(false)
     }
@@ -37,15 +39,31 @@ export default function Projects() {
     e.preventDefault()
     try {
       await projectsAPI.create({
-        name: newProjectName,
+        title: newProjectTitle,
         description: newProjectDescription || undefined
       })
-      setNewProjectName('')
+      setNewProjectTitle('')
       setNewProjectDescription('')
       setDialogOpen(false)
+      toast.success('Project created successfully!')
       loadProjects()
     } catch (error) {
       console.error('Failed to create project:', error)
+      toast.error('Failed to create project')
+    }
+  }
+
+  const handleDeleteProject = async (projectId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (!window.confirm('Are you sure you want to delete this project? All tasks will be deleted.')) return
+    
+    try {
+      await projectsAPI.delete(projectId)
+      toast.success('Project deleted successfully!')
+      loadProjects()
+    } catch (error) {
+      console.error('Failed to delete project:', error)
+      toast.error('Failed to delete project')
     }
   }
 
@@ -80,51 +98,12 @@ export default function Projects() {
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Projects</h2>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <form onSubmit={handleCreateProject}>
-                <DialogHeader>
-                  <DialogTitle>Create New Project</DialogTitle>
-                  <DialogDescription>
-                    Add a new project to organize your tasks
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Project Name</Label>
-                    <Input
-                      id="name"
-                      value={newProjectName}
-                      onChange={(e) => setNewProjectName(e.target.value)}
-                      placeholder="Enter project name"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description (optional)</Label>
-                    <Input
-                      id="description"
-                      value={newProjectDescription}
-                      onChange={(e) => setNewProjectDescription(e.target.value)}
-                      placeholder="Enter project description"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">Create Project</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          
+          {/* Create Button */}
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Project
+          </Button>
         </div>
 
         {projects.length === 0 ? (
@@ -147,15 +126,26 @@ export default function Projects() {
               <Card
                 key={project.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => navigate(`/projects/${project.id}`)}
               >
-                <CardHeader>
-                  <CardTitle>{project.name}</CardTitle>
-                  {project.description && (
-                    <CardDescription>{project.description}</CardDescription>
-                  )}
+                <CardHeader onClick={() => navigate(`/projects/${project.id}`)}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <CardTitle>{project.title}</CardTitle>
+                      {project.description && (
+                        <CardDescription className="mt-2">{project.description}</CardDescription>
+                      )}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleDeleteProject(project.id.toString(), e)}
+                      className="ml-2 hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
                 </CardHeader>
-                <CardFooter>
+                <CardFooter onClick={() => navigate(`/projects/${project.id}`)}>
                   <Button variant="ghost" className="w-full">
                     View Details →
                   </Button>
@@ -165,7 +155,47 @@ export default function Projects() {
           </div>
         )}
       </main>
+
+      {/* Create DIALOG */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <form onSubmit={handleCreateProject}>
+            <DialogHeader>
+              <DialogTitle>Create New Project</DialogTitle>
+              <DialogDescription>
+                Add a new project to organize your tasks
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Project Name</Label>
+                <Input
+                  id="name"
+                  value={newProjectTitle}
+                  onChange={(e) => setNewProjectTitle(e.target.value)}
+                  placeholder="Enter project name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description (optional)</Label>
+                <Input
+                  id="description"
+                  value={newProjectDescription}
+                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                  placeholder="Enter project description"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Create Project</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
-

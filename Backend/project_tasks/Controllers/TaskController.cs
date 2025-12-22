@@ -32,7 +32,11 @@ namespace Project_tasks.Controllers
             {
                 throw new UnauthorizedAccessException("User ID not found in token");
             }
-            return long.Parse(userIdClaim);
+            if (!long.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            }
+            return userId;
         }
 
         /// <summary>
@@ -119,6 +123,44 @@ namespace Project_tasks.Controllers
             {
                 _logger.LogError(ex, "Error creating task");
                 return StatusCode(500, new { message = "An error occurred while creating the task" });
+            }
+        }
+
+        /// <summary>
+        /// Update a task
+        /// </summary>
+        [HttpPut("{taskId}")]
+        public async Task<IActionResult> UpdateTask(long projectId, long taskId, [FromBody] UpdateTaskRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Invalid input", errors = ModelState });
+                }
+
+                var userId = GetCurrentUserId();
+                var task = await _taskService.UpdateTaskAsync(taskId, projectId, request, userId);
+
+                if (task == null)
+                {
+                    return NotFound(new { message = "Task not found" });
+                }
+
+                return Ok(task);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating task");
+                return StatusCode(500, new { message = "An error occurred while updating the task" });
             }
         }
 

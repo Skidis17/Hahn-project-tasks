@@ -64,6 +64,33 @@ namespace Project_tasks.Services
             return MapToTaskResponse(todo);
         }
 
+        public async Task<TaskResponse?> UpdateTaskAsync(long taskId, long projectId, UpdateTaskRequest request, long userId)
+        {
+            var todo = await _context.Tasks
+                .Include(t => t.Project)
+                .FirstOrDefaultAsync(t => t.Id == taskId && t.IdProject == projectId && t.Project.IdUser == userId);
+
+            if (todo == null)
+            {
+                return null;
+            }
+
+            todo.Title = request.Title;
+            todo.Description = request.Description;
+            todo.DueDate = request.DueDate;
+
+            if (!Enum.TryParse<TodoStatus>(request.Status, ignoreCase: true, out var parsedStatus))
+            {
+                throw new ArgumentException("Invalid status value");
+            }
+
+            todo.Status = parsedStatus;
+
+            await _context.SaveChangesAsync();
+
+            return MapToTaskResponse(todo);
+        }
+
         public async Task<TaskResponse?> CompleteTaskAsync(long taskId, long projectId, long userId)
         {
             var todo = await _context.Tasks

@@ -10,6 +10,7 @@ namespace Project_tasks.Services
         Task<List<ProjectResponse>> GetAllProjectsByUserAsync(long userId);
         Task<ProjectResponse?> GetProjectByIdAsync(long projectId, long userId);
         Task<ProjectResponse> CreateProjectAsync(CreateProjectRequest request, long userId);
+        Task<ProjectResponse?> UpdateProjectAsync(long projectId, UpdateProjectRequest request, long userId);
         Task<bool> DeleteProjectAsync(long projectId, long userId);
         Task<ProjectProgressResponse?> GetProjectProgressAsync(long projectId, long userId);
     }

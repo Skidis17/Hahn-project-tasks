@@ -45,7 +45,15 @@ namespace Project_tasks.DBConfig
             modelBuilder.Entity<TodoItem>(entity =>
             {
                 entity.Property(t => t.Status)
-                    .HasConversion<string>();
+                    .HasConversion(
+                        v => v.ToString(),
+                        v => Enum.Parse<TodoStatus>(
+                            (v ?? string.Empty)
+                                .Replace("-", string.Empty)
+                                .Replace(" ", string.Empty),
+                            ignoreCase: true
+                        )
+                    );
             });
         }
     }

@@ -50,6 +50,25 @@ namespace Project_tasks.Services
             return MapToProjectResponse(project);
         }
 
+        public async Task<ProjectResponse?> UpdateProjectAsync(long projectId, UpdateProjectRequest request, long userId)
+        {
+            var project = await _context.Projects
+                .Include(p => p.Tasks)
+                .FirstOrDefaultAsync(p => p.Id == projectId && p.IdUser == userId);
+
+            if (project == null)
+            {
+                return null;
+            }
+
+            project.Title = request.Title;
+            project.Description = request.Description;
+
+            await _context.SaveChangesAsync();
+
+            return MapToProjectResponse(project);
+        }
+
         public async Task<bool> DeleteProjectAsync(long projectId, long userId)
         {
             var project = await _context.Projects

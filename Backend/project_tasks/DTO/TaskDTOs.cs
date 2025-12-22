@@ -19,6 +19,22 @@ namespace Project_tasks.DTO
         public DateTime DueDate { get; set; }
     }
 
+    public class UpdateTaskRequest
+    {
+        [Required(ErrorMessage = "Title is required")]
+        [MaxLength(255, ErrorMessage = "Title cannot exceed 255 characters")]
+        public string Title { get; set; } = string.Empty;
+
+        [MaxLength(255, ErrorMessage = "Description cannot exceed 255 characters")]
+        public string? Description { get; set; }
+
+        [Required(ErrorMessage = "Status is required")]
+        public string Status { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Due date is required")]
+        public DateTime DueDate { get; set; }
+    }
+
     // TaskResponse.cs
     public class TaskResponse
     {

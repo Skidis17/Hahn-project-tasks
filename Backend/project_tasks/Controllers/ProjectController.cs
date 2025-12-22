@@ -32,7 +32,11 @@ namespace Project_tasks.Controllers
             {
                 throw new UnauthorizedAccessException("User ID not found in token");
             }
-            return long.Parse(userIdClaim);
+            if (!long.TryParse(userIdClaim, out var userId))
+            {
+                throw new UnauthorizedAccessException("Invalid user ID in token");
+            }
+            return userId;
         }
 
         /// <summary>
@@ -113,6 +117,37 @@ namespace Project_tasks.Controllers
             {
                 _logger.LogError(ex, "Error creating project");
                 return StatusCode(500, new { message = "An error occurred while creating the project" });
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProject(long id, [FromBody] UpdateProjectRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Invalid input", errors = ModelState });
+                }
+
+                var userId = GetCurrentUserId();
+                var project = await _projectService.UpdateProjectAsync(id, request, userId);
+
+                if (project == null)
+                {
+                    return NotFound(new { message = "Project not found" });
+                }
+
+                return Ok(project);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating project");
+                return StatusCode(500, new { message = "An error occurred while updating the project" });
             }
         }
 

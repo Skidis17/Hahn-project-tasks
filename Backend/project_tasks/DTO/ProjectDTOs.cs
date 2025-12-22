@@ -15,6 +15,17 @@ namespace Project_tasks.DTO
         public string? Description { get; set; }
     }
 
+    // UpdateProjectRequest.cs
+    public class UpdateProjectRequest
+    {
+        [Required(ErrorMessage = "Title is required")]
+        [MaxLength(255, ErrorMessage = "Title cannot exceed 255 characters")]
+        public string Title { get; set; } = string.Empty;
+
+        [MaxLength(255, ErrorMessage = "Description cannot exceed 255 characters")]
+        public string? Description { get; set; }
+    }
+
     // ProjectResponse.cs
     public class ProjectResponse
     {

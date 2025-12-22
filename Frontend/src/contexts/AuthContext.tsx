@@ -1,18 +1,20 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import authService from '../services/authService';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { authAPI } from '@/services/api';  
 import { useNavigate } from 'react-router-dom';
+
+// We used this file to create an AuthContext to manage authentication state across the app
+// It provides login and logout functions and stores the current user information
 
 type User = {
   id: string;
   email: string;
-  token: string;
+  name?: string;
 };
 
 type AuthContextType = {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, confirmPassword: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -28,42 +30,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user is logged in on initial load
-    const currentUser = authService.getCurrentUser();
+    const currentUser = authAPI.getCurrentUser();
     setUser(currentUser);
     setLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
     try {
-      const userData = await authService.login({ email, password });
+      const { user: userData } = await authAPI.login({ email, password });
       setUser(userData);
-      navigate('/');
+      navigate('/projects'); 
     } catch (error) {
       console.error('Login failed:', error);
       throw error;
     }
   };
 
-  const register = async (email: string, password: string, confirmPassword: string) => {
-    try {
-      await authService.register({ email, password, confirmPassword });
-      // After successful registration, log the user in
-      await login(email, password);
-    } catch (error) {
-      console.error('Registration failed:', error);
-      throw error;
-    }
-  };
-
   const logout = () => {
-    authService.logout();
+    authAPI.logout();
     setUser(null);
     navigate('/login');
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {!loading && children}
     </AuthContext.Provider>
   );

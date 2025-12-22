@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select } from '@/components/ui/select'
@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { projectsAPI, tasksAPI } from '@/services/api'
 import type { Project, Task } from '@/types'
 import { ArrowLeft, Plus, Edit, Trash2, Search, X } from 'lucide-react'
+import { toast } from 'sonner'
 
 const ITEMS_PER_PAGE = 5
 
@@ -30,8 +31,8 @@ export default function ProjectDetail() {
   // Form states
   const [taskTitle, setTaskTitle] = useState('')
   const [taskDescription, setTaskDescription] = useState('')
-  const [taskStatus, setTaskStatus] = useState<'pending' | 'in-progress' | 'completed'>('pending')
-  const [taskPriority, setTaskPriority] = useState<'low' | 'medium' | 'high'>('medium')
+  const [taskStatus, setTaskStatus] = useState<'Pending' | 'InProgress' | 'Completed'>('Pending')
+  const [taskDueDate, setTaskDueDate] = useState('')
 
   useEffect(() => {
     if (id) {
@@ -46,6 +47,7 @@ export default function ProjectDetail() {
       setProject(data)
     } catch (error) {
       console.error('Failed to load project:', error)
+      toast.error('Failed to load project')
       navigate('/projects')
     }
   }
@@ -57,6 +59,7 @@ export default function ProjectDetail() {
       setTasks(data)
     } catch (error) {
       console.error('Failed to load tasks:', error)
+      toast.error('Failed to load tasks')
     } finally {
       setLoading(false)
     }
@@ -65,18 +68,18 @@ export default function ProjectDetail() {
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await tasksAPI.create({
+      await tasksAPI.create(id!, {
         title: taskTitle,
         description: taskDescription || undefined,
-        status: taskStatus,
-        priority: taskPriority,
-        projectId: id!
+        dueDate: new Date(taskDueDate).toISOString()
       })
       resetForm()
       setDialogOpen(false)
+      toast.success('Task created successfully!')
       loadTasks()
     } catch (error) {
       console.error('Failed to create task:', error)
+      toast.error('Failed to create task')
     }
   }
 
@@ -84,36 +87,51 @@ export default function ProjectDetail() {
     e.preventDefault()
     if (!editingTask) return
     try {
-      await tasksAPI.update(editingTask.id, {
+      await tasksAPI.update(id!, editingTask.id.toString(), {
         title: taskTitle,
         description: taskDescription || undefined,
         status: taskStatus,
-        priority: taskPriority
+        dueDate: new Date(taskDueDate).toISOString()
       })
       resetForm()
       setEditDialogOpen(false)
       setEditingTask(null)
+      toast.success('Task updated successfully!')
       loadTasks()
     } catch (error) {
       console.error('Failed to update task:', error)
+      toast.error('Failed to update task')
     }
   }
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (!confirm('Are you sure you want to delete this task?')) return
+  const handleDeleteTask = async (taskId: number) => {
+    if (!window.confirm('Are you sure you want to delete this task?')) return
     try {
-      await tasksAPI.delete(taskId)
+      await tasksAPI.delete(id!, taskId.toString())
+      toast.success('Task deleted successfully!')
       loadTasks()
     } catch (error) {
       console.error('Failed to delete task:', error)
+      toast.error('Failed to delete task')
+    }
+  }
+
+  const handleCompleteTask = async (taskId: number) => {
+    try {
+      await tasksAPI.complete(id!, taskId.toString())
+      toast.success('Task marked as complete!')
+      loadTasks()
+    } catch (error) {
+      console.error('Failed to complete task:', error)
+      toast.error('Failed to complete task')
     }
   }
 
   const resetForm = () => {
     setTaskTitle('')
     setTaskDescription('')
-    setTaskStatus('pending')
-    setTaskPriority('medium')
+    setTaskStatus('Pending')
+    setTaskDueDate('')
   }
 
   const openEditDialog = (task: Task) => {
@@ -121,7 +139,7 @@ export default function ProjectDetail() {
     setTaskTitle(task.title)
     setTaskDescription(task.description || '')
     setTaskStatus(task.status)
-    setTaskPriority(task.priority)
+    setTaskDueDate(task.dueDate ? task.dueDate.slice(0, 10) : '')
     setEditDialogOpen(true)
   }
 
@@ -142,23 +160,14 @@ export default function ProjectDetail() {
   }, [filteredTasks, currentPage])
 
   // Calculate progress
-  const completedTasks = tasks.filter(t => t.status === 'completed').length
+  const completedTasks = tasks.filter(t => t.status === 'Completed').length
   const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive'
-      case 'medium': return 'default'
-      case 'low': return 'secondary'
-      default: return 'default'
-    }
-  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed': return 'default'
-      case 'in-progress': return 'secondary'
-      case 'pending': return 'outline'
+      case 'Completed': return 'default'
+      case 'InProgress': return 'secondary'
+      case 'Pending': return 'outline'
       default: return 'outline'
     }
   }
@@ -183,7 +192,7 @@ export default function ProjectDetail() {
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Projects
           </Button>
-          <h1 className="text-3xl font-bold">{project.name}</h1>
+          <h1 className="text-3xl font-bold">{project.title}</h1>
           {project.description && (
             <p className="text-muted-foreground mt-2">{project.description}</p>
           )}
@@ -206,7 +215,7 @@ export default function ProjectDetail() {
         </Card>
 
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-5 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -237,79 +246,16 @@ export default function ProjectDetail() {
             }}
           >
             <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
-            <option value="completed">Completed</option>
+            <option value="Pending">Pending</option>
+            <option value="InProgress">In Progress</option>
+            <option value="Completed">Completed</option>
           </Select>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                New Task
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <form onSubmit={handleCreateTask}>
-                <DialogHeader>
-                  <DialogTitle>Create New Task</DialogTitle>
-                  <DialogDescription>
-                    Add a new task to this project
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Task Title</Label>
-                    <Input
-                      id="title"
-                      value={taskTitle}
-                      onChange={(e) => setTaskTitle(e.target.value)}
-                      placeholder="Enter task title"
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description (optional)</Label>
-                    <Input
-                      id="description"
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                      placeholder="Enter task description"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="status">Status</Label>
-                    <Select
-                      id="status"
-                      value={taskStatus}
-                      onChange={(e) => setTaskStatus(e.target.value as any)}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="completed">Completed</option>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="priority">Priority</Label>
-                    <Select
-                      id="priority"
-                      value={taskPriority}
-                      onChange={(e) => setTaskPriority(e.target.value as any)}
-                    >
-                      <option value="low">Low</option>
-                      <option value="medium">Medium</option>
-                      <option value="high">High</option>
-                    </Select>
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">Create Task</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+          
+          {/* Create Button */}
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Task
+          </Button>
         </div>
 
         {/* Tasks List */}
@@ -340,6 +286,15 @@ export default function ProjectDetail() {
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => handleCompleteTask(task.id)}
+                          disabled={task.status === 'Completed'}
+                          title="Mark complete"
+                        >
+                          ✓
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => openEditDialog(task)}
                         >
                           <Edit className="h-4 w-4" />
@@ -348,6 +303,7 @@ export default function ProjectDetail() {
                           variant="ghost"
                           size="icon"
                           onClick={() => handleDeleteTask(task.id)}
+                          className="hover:bg-destructive/10"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
@@ -357,10 +313,10 @@ export default function ProjectDetail() {
                   <CardContent>
                     <div className="flex gap-2 flex-wrap">
                       <Badge variant={getStatusColor(task.status)}>
-                        {task.status.replace('-', ' ')}
+                        {task.status === 'InProgress' ? 'in progress' : task.status.toLowerCase()}
                       </Badge>
-                      <Badge variant={getPriorityColor(task.priority)}>
-                        {task.priority} priority
+                      <Badge variant="secondary">
+                        Due: {task.dueDate?.slice(0, 10)}
                       </Badge>
                     </div>
                   </CardContent>
@@ -393,7 +349,58 @@ export default function ProjectDetail() {
           </>
         )}
 
-        {/* Edit Task Dialog */}
+        {/* Task (Todo) DIALOG */}
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          <DialogContent>
+            <form onSubmit={handleCreateTask}>
+              <DialogHeader>
+                <DialogTitle>Create New Task</DialogTitle>
+                <DialogDescription>
+                  Add a new task to this project
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">Task Title</Label>
+                  <Input
+                    id="title"
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                    placeholder="Enter task title"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description (optional)</Label>
+                  <Input
+                    id="description"
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    placeholder="Enter task description"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dueDate">Due Date</Label>
+                  <Input
+                    id="dueDate"
+                    type="date"
+                    value={taskDueDate}
+                    onChange={(e) => setTaskDueDate(e.target.value)}
+                    required
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">Create Task</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* EDIT TASK DIALOG */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
           <DialogContent>
             <form onSubmit={handleUpdateTask}>
@@ -422,27 +429,25 @@ export default function ProjectDetail() {
                   />
                 </div>
                 <div className="space-y-2">
+                  <Label htmlFor="edit-dueDate">Due Date</Label>
+                  <Input
+                    id="edit-dueDate"
+                    type="date"
+                    value={taskDueDate}
+                    onChange={(e) => setTaskDueDate(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="edit-status">Status</Label>
                   <Select
                     id="edit-status"
                     value={taskStatus}
                     onChange={(e) => setTaskStatus(e.target.value as any)}
                   >
-                    <option value="pending">Pending</option>
-                    <option value="in-progress">In Progress</option>
-                    <option value="completed">Completed</option>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-priority">Priority</Label>
-                  <Select
-                    id="edit-priority"
-                    value={taskPriority}
-                    onChange={(e) => setTaskPriority(e.target.value as any)}
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
+                    <option value="Pending">Pending</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Completed">Completed</option>
                   </Select>
                 </div>
               </div>
@@ -459,4 +464,3 @@ export default function ProjectDetail() {
     </div>
   )
 }
-

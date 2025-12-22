@@ -23,13 +23,13 @@ namespace Project_tasks.DBConfig
                 new User
                 {
                     Email = "test1@hahn.com",
-                    // Password: "Admin123" - hashed with BCrypt for security
+                    // Password: "test123" - hashed with BCrypt for security
                     HashedPassword = BCrypt.Net.BCrypt.HashPassword("test123")
                 },
                 new User
                 {
                     Email = "test2@hahn.com",
-                    // Password: "User123" - hashed with BCrypt for security
+                    // Password: "test1234" - hashed with BCrypt for security
                     HashedPassword = BCrypt.Net.BCrypt.HashPassword("test1234")
                 }
             };
