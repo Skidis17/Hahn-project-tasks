@@ -1,7 +1,7 @@
 using Project_tasks.DTO;
 
 // This interface defines project-related services
-// We used interfaces mainly for better abstraction and easier unit testing
+// We used interfaces mainly for better abstraction and easier unit testing (future improvements)
 
 namespace Project_tasks.Services
 {

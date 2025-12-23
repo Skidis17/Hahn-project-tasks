@@ -22,9 +22,7 @@ namespace Project_tasks.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get current user ID from JWT token
-        /// </summary>
+        // Get current user ID from JWT token
         private long GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -39,9 +37,7 @@ namespace Project_tasks.Controllers
             return userId;
         }
 
-        /// <summary>
-        /// Get all projects for the authenticated user
-        /// </summary>
+        // Get all projects for the authenticated user
         [HttpGet]
         public async Task<IActionResult> GetAllProjects()
         {
@@ -62,9 +58,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Get a specific project by ID
-        /// </summary>
+        // Get a specific project by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProjectById(long id)
         {
@@ -91,9 +85,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Create a new project
-        /// </summary>
+        // Create a new project
         [HttpPost]
         public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequest request)
         {
@@ -151,9 +143,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Delete a project
-        /// </summary>
+        // Delete a project
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject(long id)
         {
@@ -180,9 +170,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Get project progress (total tasks, completed tasks, percentage)
-        /// </summary>
+        // Get project progress (total tasks, completed tasks, percentage)
         [HttpGet("{id}/progress")]
         public async Task<IActionResult> GetProjectProgress(long id)
         {

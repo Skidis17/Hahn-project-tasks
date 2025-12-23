@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import ProtectedRoute from './components/ProtectedRoute';
+import { Toaster } from 'sonner';
 
 function AppContent() {
   const { user, loading } = useAuth();
@@ -45,6 +46,7 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <AppContent />
+        <Toaster richColors position="top-right" />
       </AuthProvider>
     </BrowserRouter>
   );

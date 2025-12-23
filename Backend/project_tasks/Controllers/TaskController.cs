@@ -22,9 +22,7 @@ namespace Project_tasks.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Get current user ID from JWT token
-        /// </summary>
+        // Get current user ID from JWT token
         private long GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -39,9 +37,7 @@ namespace Project_tasks.Controllers
             return userId;
         }
 
-        /// <summary>
-        /// Get all tasks for a project
-        /// </summary>
+        // Get all tasks for a project
         [HttpGet]
         public async Task<IActionResult> GetAllTasks(long projectId)
         {
@@ -62,9 +58,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Get a specific task by ID
-        /// </summary>
+        // Get a specific task by ID
         [HttpGet("{taskId}")]
         public async Task<IActionResult> GetTaskById(long projectId, long taskId)
         {
@@ -91,9 +85,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Create a new task
-        /// </summary>
+        // Create a new task
         [HttpPost]
         public async Task<IActionResult> CreateTask(long projectId, [FromBody] CreateTaskRequest request)
         {
@@ -126,9 +118,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Update a task
-        /// </summary>
+        // Update a task
         [HttpPut("{taskId}")]
         public async Task<IActionResult> UpdateTask(long projectId, long taskId, [FromBody] UpdateTaskRequest request)
         {
@@ -164,9 +154,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Mark a task as completed
-        /// </summary>
+        // Mark a task as completed
         [HttpPatch("{taskId}/complete")]
         public async Task<IActionResult> CompleteTask(long projectId, long taskId)
         {
@@ -193,9 +181,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Delete a task
-        /// </summary>
+        // Delete a task
         [HttpDelete("{taskId}")]
         public async Task<IActionResult> DeleteTask(long projectId, long taskId)
         {
@@ -223,20 +209,3 @@ namespace Project_tasks.Controllers
         }
     }
 }
-
-// API Endpoints short recap:
-
-// POST   /api/auth/login                              - Login (No Auth)
-// GET    /api/auth/test                               - Test endpoint (No Auth)
-
-// GET    /api/projects                                - Get all projects (Auth Required)
-// GET    /api/projects/{id}                           - Get project by ID (Auth Required)
-// POST   /api/projects                                - Create project (Auth Required)
-// DELETE /api/projects/{id}                           - Delete project (Auth Required)
-// GET    /api/projects/{id}/progress                  - Get project progress (Auth Required)
-
-// GET    /api/projects/{projectId}/tasks              - Get all tasks (Auth Required)
-// GET    /api/projects/{projectId}/tasks/{taskId}     - Get task by ID (Auth Required)
-// POST   /api/projects/{projectId}/tasks              - Create task (Auth Required)
-// PATCH  /api/projects/{projectId}/tasks/{taskId}/complete - Complete task (Auth Required)
-// DELETE /api/projects/{projectId}/tasks/{taskId}     - Delete task (Auth Required)

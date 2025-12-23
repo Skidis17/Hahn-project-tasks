@@ -7,7 +7,12 @@ using Project_tasks.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -55,7 +60,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Database Creation and Seeding - FIXED
+// Database Creation and Seeding 
 try
 {
     using (var scope = app.Services.CreateScope())
@@ -71,7 +76,7 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ Database Error: {ex.Message}");
+    Console.WriteLine($" Database Error: {ex.Message}");
 }
 
 // Configure the HTTP request pipeline
@@ -87,6 +92,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
-Console.WriteLine("🚀 Server starting on http://localhost:5000");
+Console.WriteLine("Server starting on http://localhost:5000");
 app.Urls.Add("http://localhost:5000");
 app.Run();

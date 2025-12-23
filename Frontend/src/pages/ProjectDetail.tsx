@@ -188,10 +188,13 @@ export default function ProjectDetail() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4">
-          <Button variant="ghost" onClick={() => navigate('/projects')} className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Projects
-          </Button>
+          <div
+            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity mb-4"
+            onClick={() => navigate('/projects')}
+          >
+            <ArrowLeft className="h-6 w-6 text-primary" />
+            <h2 className="text-xl font-bold">Project Manager</h2>
+          </div>
           <h1 className="text-3xl font-bold">{project.title}</h1>
           {project.description && (
             <p className="text-muted-foreground mt-2">{project.description}</p>
@@ -215,8 +218,8 @@ export default function ProjectDetail() {
         </Card>
 
         {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-5 mb-6">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-[2]">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search tasks..."
@@ -244,13 +247,14 @@ export default function ProjectDetail() {
               setStatusFilter(e.target.value)
               setCurrentPage(1)
             }}
+            className="w-full sm:w-40"
           >
-            <option value="all">All Status</option>
+            <option value="all">Filter</option>
             <option value="Pending">Pending</option>
             <option value="InProgress">In Progress</option>
             <option value="Completed">Completed</option>
           </Select>
-          
+
           {/* Create Button */}
           <Button onClick={() => setDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />

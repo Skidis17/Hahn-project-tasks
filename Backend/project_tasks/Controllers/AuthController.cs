@@ -19,11 +19,8 @@ namespace Project_tasks.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Login endpoint - Returns JWT token
-        /// </summary>
-        /// <param name="request">Login credentials</param>
-        /// <returns>JWT token and user info</returns>
+
+        // Login endpoint - Returns JWT token
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
@@ -50,9 +47,7 @@ namespace Project_tasks.Controllers
             }
         }
 
-        /// <summary>
-        /// Test endpoint to verify authentication is working
-        /// </summary>
+        // Test endpoint to verify authentication is working
         [HttpGet("test")]
         public IActionResult Test()
         {
