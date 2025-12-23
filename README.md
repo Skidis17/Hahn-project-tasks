@@ -61,4 +61,43 @@ Hahn-project-tasks/
 - The JWT token is stored in `localStorage` under: `JWT_Token`.
 - Axios attaches the token as `Authorization: Bearer <token>`.
 
+## How to Run
 
+### MySQL
+1. Start your MySQL server (via command line, MySQL Workbench, or system service)
+2. Ensure MySQL is running on the default port `3306`
+3. Create a database for the project or let EF Core migrations create it
+
+### Backend
+1. Navigate to the backend directory:
+```bash
+   cd Backend/project_tasks
+```
+2. Restore dependencies:
+```bash
+   dotnet restore
+```
+3. Apply database migrations:
+```bash
+   dotnet ef database update
+```
+4. Run the API:
+```bash
+   dotnet run
+```
+5. Backend will be available at `http://localhost:5000`
+
+### Frontend
+1. Navigate to the frontend directory:
+```bash
+   cd Frontend
+```
+2. Install dependencies:
+```bash
+   npm install
+```
+3. Start the development server:
+```bash
+   npm run dev
+```
+4. Frontend will be available at `http://localhost:5173`
