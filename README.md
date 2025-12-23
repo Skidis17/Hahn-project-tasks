@@ -4,7 +4,7 @@ Full-stack Project/Task manager with:
 
 - **Backend**: ASP.NET Core Web API + EF Core + MySQL + JWT auth
 - **Frontend**: React (Vite) + Axios + shadcn/ui
-
+- **Database**: MySQL 
 ## Core Implemented Functionalities
 
 ### Authentication
