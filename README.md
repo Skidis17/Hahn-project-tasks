@@ -101,3 +101,7 @@ Hahn-project-tasks/
    npm run dev
 ```
 4. Frontend will be available at `http://localhost:5173`
+
+## Demo video link
+
+This is the drive link for the demo video: `https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing` 
