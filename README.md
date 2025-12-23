@@ -104,4 +104,4 @@ Hahn-project-tasks/
 
 ## Demo video link
 
-This is the drive link for the demo video: `https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing` 
+This is the drive link for the demo video: [**Bold Link**](https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing) 
