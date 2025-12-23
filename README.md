@@ -4,7 +4,7 @@ Full-stack Project/Task manager with:
 
 - **Backend**: ASP.NET Core Web API + EF Core + MySQL + JWT auth
 - **Frontend**: React (Vite) + Axios + shadcn/ui
-
+- **Database**: MySQL 
 ## Core Implemented Functionalities
 
 ### Authentication
@@ -36,7 +36,6 @@ Backend computes and returns:
 - **Completed tasks**
 - **Progress percentage** (0–100)
 
-Progress is derived from task statuses (`Completed / Total * 100`). No DB column is required.
 
 ## Project Structure
 
@@ -49,7 +48,7 @@ Hahn-project-tasks/
 ## Prerequisites
 
 - **Node.js** (LTS recommended)
-- **.NET SDK** (7/8 is fine)
+- **.NET SDK** (10)
 - **MySQL** (local instance)
 
 ## Ports
@@ -57,132 +56,52 @@ Hahn-project-tasks/
 - **Backend API**: `http://localhost:5000`
 - **Frontend** (Vite): typically `http://localhost:5173`
 
-## Backend Setup (ASP.NET Core API)
-
-### 1) Configure MySQL connection
-
-The backend currently uses a connection string in:
-
-`Backend/project_tasks/Program.cs`
-
-Example (current style):
-
-```text
-server=localhost;port=3306;database=project_tasks;user=root;password=;AllowUserVariables=True;UseAffectedRows=False
-```
-
-Make sure:
-
-- MySQL is running
-- The user/password are correct
-
-### 2) Run the backend
-
-From `Backend/project_tasks/`:
-
-```bash
-dotnet restore
-dotnet run
-```
-
-The API will start at:
-
-- `http://localhost:5000`
-
-The backend calls `EnsureCreated()` and seeds initial data via `DbInitializer.Initialize(db)`.
-
-### 3) Swagger
-
-In development you can open:
-
-- `http://localhost:5000/swagger`
-
-## Frontend Setup (React + Vite)
-
-From `Frontend/`:
-
-```bash
-npm install
-npm run dev
-```
-
-Then open the Vite URL shown in the terminal (typically `http://localhost:5173`).
-
 ## Authentication Notes
 
 - The JWT token is stored in `localStorage` under: `JWT_Token`.
 - Axios attaches the token as `Authorization: Bearer <token>`.
 
-## API Overview
+## How to Run
 
-Base URL:
+### MySQL
+1. Start your MySQL server (via command line, MySQL Workbench, or system service)
+2. Ensure MySQL is running on the default port `3306`
+3. Import the database schema using the provided SQL file in the repository *(Most preferable)* or let EF Core migrations create it
 
-- `http://localhost:5000/api`
-
-### Auth
-
-- `POST /api/auth/login`
-
-### Projects
-
-- `GET /api/projects`
-- `GET /api/projects/{id}`
-- `POST /api/projects`
-- `PUT /api/projects/{id}`
-- `DELETE /api/projects/{id}`
-
-### Project Progress
-
-- `GET /api/projects/{id}/progress`
-
-Returns:
-
-```json
-{
-  "projectId": 1,
-  "projectTitle": "My Project",
-  "totalTasks": 5,
-  "completedTasks": 2,
-  "progressPercentage": 40
-}
+### Backend
+1. Navigate to the backend directory:
+```bash
+   cd Backend/project_tasks
 ```
-
-### Tasks (nested under Projects)
-
-- `GET /api/projects/{projectId}/tasks`
-- `GET /api/projects/{projectId}/tasks/{taskId}`
-- `POST /api/projects/{projectId}/tasks`
-- `PUT /api/projects/{projectId}/tasks/{taskId}`
-- `PATCH /api/projects/{projectId}/tasks/{taskId}/complete`
-- `DELETE /api/projects/{projectId}/tasks/{taskId}`
-
-## Troubleshooting
-
-### 405 Method Not Allowed on PUT/PATCH/DELETE
-
-If you see a browser error like:
-
+2. Restore dependencies:
+```bash
+   dotnet restore
 ```
-PUT http://localhost:5000/api/projects/1/tasks/1 405 (Method Not Allowed)
+3. Apply database migrations (No need in case of manual Database importation):
+```bash
+   dotnet ef database update
 ```
+4. Run the API:
+```bash
+   dotnet run
+```
+5. Backend will be available at `http://localhost:5000`
 
-It can be caused by CORS preflight (`OPTIONS`) not being handled. Make sure you:
+### Frontend
+1. Navigate to the frontend directory:
+```bash
+   cd Frontend
+```
+2. Install dependencies:
+```bash
+   npm install
+```
+3. Start the development server:
+```bash
+   npm run dev
+```
+4. Frontend will be available at `http://localhost:5173`
 
-- Restarted the backend after changes
-- Backend pipeline includes routing + CORS in the correct order (routing, then CORS, then auth)
+## Demo Video Link
 
-### 401 Unauthorized
-
-- Verify you are logged in
-- Verify `JWT_Token` exists in localStorage
-- Verify requests include `Authorization: Bearer ...`
-
-## What is not stored in DB?
-
-`totalTasks`, `completedTasks`, and `progressPercentage` are **computed values** returned in API responses.
-
-They are not stored in DB because:
-
-- They can be derived from tasks at any time
-- Storing them risks the values getting out of sync
-
+This is the drive's link for the demonstration video: [**Demo Video**](https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing) 
