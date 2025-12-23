@@ -66,7 +66,7 @@ Hahn-project-tasks/
 ### MySQL
 1. Start your MySQL server (via command line, MySQL Workbench, or system service)
 2. Ensure MySQL is running on the default port `3306`
-3. Create a database for the project or let EF Core migrations create it
+3. Import the database schema using the provided SQL file in the repository *(Most preferable)* or let EF Core migrations create it
 
 ### Backend
 1. Navigate to the backend directory:
@@ -77,7 +77,7 @@ Hahn-project-tasks/
 ```bash
    dotnet restore
 ```
-3. Apply database migrations:
+3. Apply database migrations (No need in case of manual Database importation):
 ```bash
    dotnet ef database update
 ```
