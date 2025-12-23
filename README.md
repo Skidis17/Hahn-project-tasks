@@ -102,6 +102,6 @@ Hahn-project-tasks/
 ```
 4. Frontend will be available at `http://localhost:5173`
 
-## Demo video link
+## Demo Video Link
 
-This is the drive link for the demo video: [**Bold Link**](https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing) 
+This is the drive link for the demo video: [**Demo Video**](https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing) 
