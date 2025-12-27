@@ -105,3 +105,8 @@ Hahn-project-tasks/
 ## Demo Video Link
 
 This is the drive's link for the demonstration video: [**Demo Video**](https://drive.google.com/drive/folders/1Guw4sF0EknoIKxs3iiwGWddQTXTeUc1i?usp=sharing) 
+
+## Testing user
+Credentials for an already existing user 
+email: test1@hahn.com
+password: test123
